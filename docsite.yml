@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    handled-by-prometheus: k8s
+    io.datastrophic/istio-aux: enabled
+    istio-injection: enabled
+  name: deploy-docs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: docs-ui
+    app.kubernetes.io/instance: docs-ui
+    app.kubernetes.io/name: docs-ui
+  name: docs-ui
+  namespace: deploy-docs
+spec:
+  ports:
+  - name: https
+    port: 8088
+    targetPort: 8088
+  selector:
+    app: docs-ui
+    app.kubernetes.io/instance: docs-ui
+    app.kubernetes.io/name: docs-ui
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: docs-ui
+    app.kubernetes.io/instance: docs-ui
+    app.kubernetes.io/name: docs-ui
+  name: docs-ui
+  namespace: deploy-docs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: docs-ui
+      app.kubernetes.io/instance: docs-ui
+      app.kubernetes.io/name: docs-ui
+  template:
+    metadata:
+      labels:
+        app: docs-ui
+        app.kubernetes.io/instance: docs-ui
+        app.kubernetes.io/name: docs-ui
+    spec:
+      containers:
+      - image: PLACEHOLDER 
+        imagePullPolicy: Always
+        name: docs-ui
+        ports:
+        - containerPort: 8088
+          name: docs-ui
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 70m
+            memory: 200Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - all
+          runAsGroup: 10001
+          runAsNonRoot: true
+          runAsUser: 10001
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
